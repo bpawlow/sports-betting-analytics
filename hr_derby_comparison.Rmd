@@ -1,0 +1,127 @@
+---
+title: "Home Run Derby 2021 Statistical Predictions"
+author: "Bradley Pawlow"
+date: "7/12/2021"
+runtime: shiny
+output: 
+  rmdformats::downcute:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+    fig_caption: true
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE, 
+                      message = FALSE, 
+                      fig.align = 'center')
+```
+
+## Introduction
+
+<center>
+
+![](https://lh3.googleusercontent.com/1sEfofo0ozZbEDDhmesxOUv16VzdAOk1Pn2rkSGQwYY4ukwp3ydlQcCasYRGiX1A_g1pn7TPh3HhSmnHJ_Uh5w1MuSehm9FkvZGV2yOxUxKMnX6o-EgN4rvIiGH0nuURb2FcNaHV){width="740"}
+
+</center>
+
+<center>
+
+**Expected Home Runs at Coors Field (2021)**
+
+-   Juan Soto (LH) : **7, pull % : 28.4%**
+
+-   Shohei Ohtani (LH) : **5, pull % : 34.2%**
+
+-   **Joey Gallo (LH) : 19, pull % : 42.3%**
+
+-   **Matt Olson (LH) : 16, pull % : 38.9%**
+
+-   **Salvador Perez (RH) : 17, Oppo % : 25.8%**
+
+-   **Pete Alonso (RH) : 12, Oppo % : 25.7%**
+
+-   **Trey Mancini (RH) : 10, Oppo % : 29%**
+
+-   Trevor Story (RH) : **9, Oppo % : 24.9 \*\*\*Home Field advantage\*\*\***
+
+    </center>
+
+## Summary Statistics for MLB Home Run Derby Participants
+
+```{r}
+source('homerun_derby_2021.R')
+```
+
+```{r}
+choices <- exit_velo %>% 
+  select(-first_name, -last_name, -player_id, -attempts)
+
+selectInput("category",
+                        "Select Hitting Metric Category:",
+                        choices = names(choices))
+```
+
+```{r}
+
+renderPlot({
+  exit_velo %>% 
+    arrange(desc(exit_velo[input$category])) %>% 
+    ggplot(aes(reorder(last_name, unlist(exit_velo[input$category])), unlist(exit_velo[input$category]))) + 
+    geom_bar(stat="identity", width=.5, fill="blue") + 
+    geom_text(aes(label = unlist(exit_velo[input$category])), vjust = 0.55, hjust = -0.25, size = 5) +
+    coord_flip() + 
+    xlab('Players') + 
+    ylab(input$category) + 
+    labs(title = 'Top Players by Hitting Metric for 2021 Season')
+})
+  
+```
+
+## **Glossary**
+
+**Glossary from <https://www.mlb.com/glossary/statcast>**
+
+Statcast currently reports measurements (raw numbers from the on-field action) and metrics (combinations of raw measurements into useful numbers).
+
+Measurements include:
+
+• [**Arm Strength**](http://m.mlb.com/glossary/statcast/arm-strength): How hard, in miles per hour, a fielder throws the ball.
+
+• Base-to-base Time: How much time, in seconds, it takes a runner to get from one base to another, like [**Home To First**](http://m.mlb.com/glossary/statcast/home-to-first).
+
+• [**Distance Covered**](http://m.mlb.com/glossary/statcast/distance-covered): How far, in feet, a fielder or runner has traveled on a play.
+
+• [**Extension**](http://m.mlb.com/glossary/statcast/extension): How far off the mound, in feet, a pitcher releases the pitch.
+
+• [**Exit Velocity**](http://m.mlb.com/glossary/statcast/exit-velocity): How fast, in miles per hour, a ball was hit by a batter.
+
+• [**Launch Angle**](http://m.mlb.com/glossary/statcast/launch-angle): How high, in degrees, a ball was hit by a batter.
+
+• [**Lead Distance**](http://m.mlb.com/glossary/statcast/lead-distance): How far, in feet, a runner is ranging off the bag at the time of a pitcher's first movement or pitch release.
+
+• [**Pitch Velocity**](http://m.mlb.com/glossary/statcast/velocity): How hard, in miles per hour, a pitch is thrown.
+
+• [**Pop Time**](http://m.mlb.com/glossary/statcast/pop-time): How quickly, in seconds, a catcher can get the ball out of his glove and to the base on a stolen base or pickoff attempt.
+
+• [**Spin Rate**](http://m.mlb.com/glossary/statcast/spin-rate): How much spin, in revolutions per minute, a pitch was thrown with.
+
+Metrics include:
+
+• [**Barrels**](http://m.mlb.com/glossary/statcast/barrel): A batted ball with the perfect combination of exit velocity and launch angle, or the most high-value batted balls. (A barrel has a minimum Expected Batting Average of .500 and Expected Slugging Percentage of 1.500.)
+
+• [**Catch Probability**](http://m.mlb.com/glossary/statcast/catch-probability): The likelihood, in percent, that an outfielder will be able to make a catch on an individual batted ball. Catch Probability accounts for distance needed, time available, direction, and proximity to the wall, compared to how often the same opportunity is caught by Major League outfielders. This allows Statcast to get past the eye test and say "that ball gets caught 95 percent of the time," for example.
+
+• [**Expected Batting Average (xBA)**](http://m.mlb.com/glossary/statcast/expected-batting-average): xBA measures the likelihood that a batted ball will become a hit. Each batted ball is assigned an xBA based on how often comparable balls -- in terms of exit velocity, launch angle and, on certain types of batted balls, Sprint Speed -- have become hits since Statcast was implemented Major League wide in 2015. By comparing expected numbers to real-world outcomes over a period of time, it can be possible to identify which hitters (or pitchers) are over- or under-performing their demonstrated skill.
+
+• [**Expected Weighted On-base Average (xwOBA)**](http://m.mlb.com/glossary/statcast/expected-woba): xwOBA is formulated using exit velocity, launch angle and, on certain types of batted balls, Sprint Speed. In the same way that each batted ball is assigned an xBA, every batted ball is given a single, double, triple and home run probability based on the results of comparable batted balls since Statcast was implemented Major League wide in 2015. xwOBA also factors in real-world walk and strikeout numbers, and is reported on the [**wOBA**](http://m.mlb.com/glossary/advanced-stats/weighted-on-base-average) scale. By comparing expected numbers to real-world outcomes over a period of time, it can be possible to identify which hitters (or pitchers) are over- or under-performing their demonstrated skill.
+
+• [**Outs Above Average (OAA)**](http://m.mlb.com/glossary/statcast/outs-above-average): A range-based metric of skill that shows how many outs a player has saved over his peers. Prior to 2020, OAA was an outfield-only metric. But it has been expanded to include infielders. OAA is calculated differently for outfielders and infielders.
+
+• [**Sprint Speed**](http://m.mlb.com/glossary/statcast/sprint-speed): A measurement of a player's top running speed, expressed in "feet per second in a player's fastest one-second window." This can be delivered on individual plays or as a season average, found by finding all qualified runs (currently defined as anything two bases or more, excluding homers) and averaging the top half of those. In 2017, Buxton [**led the Majors**](https://baseballsavant.mlb.com/sprint_speed_leaderboard) with a Sprint Speed of 30.2 ft/sec, while the Major League average was 27 ft/sec.
+
+\
